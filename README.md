@@ -32,14 +32,36 @@ AI 도구로 한국 주식 모의투자를 체험하는 워크샵 키트.
 
 `.mcp.json` 이 KIS MCP 서버를 자동 로드해서 Claude가 위 도구들을 사용합니다.
 
-## Goal 2 — 간단한 알고리즘 매매
+## Goal 2 — 알고리즘 신호 + Claude 판단
 
-워크샵 당일 추가:
+스크립트가 **신호를 계산**하고, **Claude가 신호를 읽고 매매 결정**하는 패턴.
+멤버가 직접 실행해보거나, 또는 Claude에게 "골든크로스 신호 보고 매수 판단해줘" 같이 시킴.
 
-- `scripts/golden_cross.py` — 이동평균 골든크로스 신호 (5일선 > 20일선 교차)
-- `scripts/dart_shareholding.py` — DART 대량보유 공시 fetch → 매수 후보
+### 시나리오 A — 이동평균 골든크로스
 
-각 스크립트를 Claude에게 보여주고 "이 신호 나오면 1주 매수해" 시키는 패턴.
+```bash
+python scripts/golden_cross.py 005930
+# 출력: {"signal": "GOLDEN_CROSS_BUY", "ma5": ..., "ma20": ..., ...}
+```
+
+Claude 안에서:
+> `scripts/golden_cross.py 005930` 실행해서 결과 보고 매수할지 판단해줘. 매수하면 1주만.
+
+Claude 는 → Bash 로 스크립트 실행 → JSON 파싱 → signal 확인 → 사용자에게 확인 받고 `buy_stock` 호출.
+
+### 시나리오 B — DART 대량보유 공시
+
+```bash
+python scripts/dart_shareholding.py 3
+# 출력: 최근 3일 5%룰 대량보유 공시 + 임원·주요주주 보고
+```
+
+Claude 안에서:
+> `scripts/dart_shareholding.py 3` 결과에서 매수 후보 1~2개 골라줘. 이유도 같이.
+
+Claude 는 공시 목록 보고 → 종목명·신고 종류로 판단 → 후보 제시 → 사용자 OK 후 매수.
+
+> 두 시나리오 모두 **Claude가 자동 매매하지 않습니다.** 신호를 읽고 후보를 제시할 뿐, `buy_stock` 호출 직전에 사용자 확인을 요청합니다.
 
 ## 디렉토리 구조
 
@@ -49,7 +71,10 @@ quant-claude-workshop/
 ├── .mcp.json              # Claude Code 가 자동 로드하는 MCP 서버 등록
 ├── vendor/kis_api.py      # KIS REST API 래퍼 (개별 멤버 환경에 자립)
 ├── mcp_servers/kis_broker.py  # MCP stdio 서버 (Claude ↔ KIS)
-├── scripts/               # 직접 실행하는 데모 스크립트
+├── scripts/
+│   ├── demo_price.py      # KIS 연결 확인 (자연어 매매 전 smoke test)
+│   ├── golden_cross.py    # 이동평균 골든크로스 신호 (Goal 2 시나리오 A)
+│   └── dart_shareholding.py  # DART 대량보유 공시 (Goal 2 시나리오 B)
 ├── config.example.yaml    # 키 입력 템플릿
 └── setup.sh               # 첫 셋업 (config.yaml 생성)
 ```
