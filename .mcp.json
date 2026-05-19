@@ -3,6 +3,10 @@
     "kis-broker": {
       "command": "python",
       "args": ["mcp_servers/kis_broker.py"]
+    },
+    "signals": {
+      "command": "python",
+      "args": ["mcp_servers/signals.py"]
     }
   }
 }

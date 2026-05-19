@@ -32,36 +32,43 @@ AI 도구로 한국 주식 모의투자를 체험하는 워크샵 키트.
 
 `.mcp.json` 이 KIS MCP 서버를 자동 로드해서 Claude가 위 도구들을 사용합니다.
 
-## Goal 2 — 알고리즘 신호 + Claude 판단
+## Goal 2 — 알고리즘 신호 + 자연어 매매
 
-스크립트가 **신호를 계산**하고, **Claude가 신호를 읽고 매매 결정**하는 패턴.
-멤버가 직접 실행해보거나, 또는 Claude에게 "골든크로스 신호 보고 매수 판단해줘" 같이 시킴.
+**신호 계산도 Claude가 도구로 호출**합니다. 멤버는 터미널 안 가고 자연어만:
 
 ### 시나리오 A — 이동평균 골든크로스
 
-```bash
-python scripts/golden_cross.py 005930
-# 출력: {"signal": "GOLDEN_CROSS_BUY", "ma5": ..., "ma20": ..., ...}
 ```
+> 삼성전자 골든크로스 신호 어때?
+[Claude: golden_cross_signal 호출 → {"signal": "GOLDEN_CROSS_BUY", "ma5": ..., "ma20": ...}]
 
-Claude 안에서:
-> `scripts/golden_cross.py 005930` 실행해서 결과 보고 매수할지 판단해줘. 매수하면 1주만.
-
-Claude 는 → Bash 로 스크립트 실행 → JSON 파싱 → signal 확인 → 사용자에게 확인 받고 `buy_stock` 호출.
+> 그럼 1주 매수해줘
+[Claude: 확인 후 buy_stock 호출]
+```
 
 ### 시나리오 B — DART 대량보유 공시
 
-```bash
-python scripts/dart_shareholding.py 3
-# 출력: 최근 3일 5%룰 대량보유 공시 + 임원·주요주주 보고
+```
+> 최근 3일 대량보유 공시 보여줘
+[Claude: dart_recent_disclosures 호출 → 공시 목록]
+
+> 이 중에 매수 후보 1개 골라줘. 이유도 같이
+[Claude: 종목명·보고 종류로 판단 → 추천 → 사용자 OK 후 buy_stock]
 ```
 
-Claude 안에서:
-> `scripts/dart_shareholding.py 3` 결과에서 매수 후보 1~2개 골라줘. 이유도 같이.
+### 알고리즘을 직접 수정하고 싶다면
 
-Claude 는 공시 목록 보고 → 종목명·신고 종류로 판단 → 후보 제시 → 사용자 OK 후 매수.
+도구 내부는 `scripts/golden_cross.py`, `scripts/dart_shareholding.py` 에 함수로 들어있습니다.
+Claude에게 "5/20 → 10/30 이동평균으로 바꿔줘" 처럼 자연어로 코드 수정도 가능.
 
-> 두 시나리오 모두 **Claude가 자동 매매하지 않습니다.** 신호를 읽고 후보를 제시할 뿐, `buy_stock` 호출 직전에 사용자 확인을 요청합니다.
+직접 터미널에서 실행해서 결과 확인하고 싶다면:
+```bash
+python scripts/golden_cross.py 005930
+python scripts/dart_shareholding.py 3
+```
+
+> **모든 매매는 사용자 확인을 거칩니다.** Claude는 신호 해석/후보 제시까지만 자동이고,
+> `buy_stock` 호출 직전엔 항상 "1주 매수하시겠습니까?" 확인을 받습니다.
 
 ## 디렉토리 구조
 
