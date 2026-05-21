@@ -1,31 +1,56 @@
 """5일/20일 이동평균 골든크로스 / 데드크로스 감지.
 
-워크샵 흐름:
-  1. 이 스크립트 실행 → 신호 JSON 출력
-  2. Claude 안에서: "scripts/golden_cross.py 005930 결과 보고 매수 판단해줘"
-  3. Claude 가 신호 읽고 → 확인 후 buy_stock 호출
+한국 종목 (6자리 숫자) 과 미국 종목 (영문 심볼) 둘 다 지원.
+  - 한국: pykrx 로 OHLCV
+  - 미국: yfinance 로 OHLCV
 
-사용법: python scripts/golden_cross.py [종목코드]
-예시: python scripts/golden_cross.py 005930
+사용법: python scripts/golden_cross.py [종목]
+예시:
+  python scripts/golden_cross.py 005930   # 삼성전자
+  python scripts/golden_cross.py NVDA      # 엔비디아
 """
 
 import json
 import sys
 from datetime import datetime, timedelta
 
-from pykrx import stock
+
+def _is_korean_ticker(t: str) -> bool:
+    return t.isdigit() and len(t) == 6
+
+
+def _fetch_korean(ticker: str, lookback_days: int):
+    from pykrx import stock
+    end = datetime.now().strftime("%Y%m%d")
+    start = (datetime.now() - timedelta(days=lookback_days)).strftime("%Y%m%d")
+    df = stock.get_market_ohlcv(start, end, ticker)
+    return df, "종가"
+
+
+def _fetch_us(ticker: str, lookback_days: int):
+    import yfinance as yf
+    end = datetime.now()
+    start = end - timedelta(days=lookback_days)
+    df = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=False)
+    if isinstance(df.columns, type(df.columns)) and hasattr(df.columns, "nlevels") and df.columns.nlevels > 1:
+        df.columns = df.columns.get_level_values(0)
+    return df, "Close"
 
 
 def detect_cross(ticker: str, lookback_days: int = 60) -> dict:
-    end_date = datetime.now().strftime("%Y%m%d")
-    start_date = (datetime.now() - timedelta(days=lookback_days)).strftime("%Y%m%d")
+    is_kr = _is_korean_ticker(ticker)
+    market = "KR" if is_kr else "US"
 
-    df = stock.get_market_ohlcv(start_date, end_date, ticker)
-    if df.empty or len(df) < 21:
-        return {"ticker": ticker, "error": "데이터 부족 (영업일 기준 21일 필요)"}
+    try:
+        df, close_col = _fetch_korean(ticker, lookback_days) if is_kr else _fetch_us(ticker, lookback_days)
+    except Exception as e:
+        return {"ticker": ticker, "market": market, "error": f"OHLCV fetch 실패: {e}"}
 
-    df["MA5"] = df["종가"].rolling(5).mean()
-    df["MA20"] = df["종가"].rolling(20).mean()
+    if df is None or df.empty or len(df) < 21:
+        return {"ticker": ticker, "market": market, "error": "데이터 부족 (영업일 21일 필요)"}
+
+    df["MA5"] = df[close_col].rolling(5).mean()
+    df["MA20"] = df[close_col].rolling(20).mean()
 
     today = df.iloc[-1]
     yesterday = df.iloc[-2]
@@ -37,10 +62,11 @@ def detect_cross(ticker: str, lookback_days: int = 60) -> dict:
 
     return {
         "ticker": ticker,
+        "market": market,
         "date": df.index[-1].strftime("%Y-%m-%d"),
-        "close": int(today["종가"]),
-        "ma5": round(float(today["MA5"]), 1),
-        "ma20": round(float(today["MA20"]), 1),
+        "close": round(float(today[close_col]), 2),
+        "ma5": round(float(today["MA5"]), 2),
+        "ma20": round(float(today["MA20"]), 2),
         "ma5_above_ma20": bool(today["MA5"] > today["MA20"]),
         "golden_cross_today": golden,
         "dead_cross_today": dead,

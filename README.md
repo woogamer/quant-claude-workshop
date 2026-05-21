@@ -25,10 +25,19 @@ AI 도구로 한국 주식 모의투자를 체험하는 워크샵 키트.
 
 `claude` 실행 후 자연어로:
 
+### 한국주식 (정규장 09:00 ~ 15:30)
 - "삼성전자 현재가 알려줘"
 - "내 모의계좌 잔고 보여줘"
 - "삼성전자 외국인 매매 동향 어때?"
-- "삼성전자 1주 시장가로 매수해줘" → Claude가 확인 후 `buy_stock` 호출
+- "삼성전자 1주 시장가로 매수해줘" → `buy_stock` 호출
+
+### 미국주식 (한국시간 22:30 ~ 05:00, 서머타임 적용 시기)
+- "엔비디아 현재가 알려줘" → `get_overseas_stock_price`
+- "내 미국주식 잔고 보여줘" → `get_overseas_balance`
+- "테슬라 1주 매수해줘" → Claude가 현재가 조회 후 지정가로 `buy_overseas_stock` 호출
+
+> **장 시간 외 매수는 "모의투자 장시작전 입니다" 응답**. 한국 시간 외 시연이면 미국 주식 사용.
+> KIS 모의투자는 **시장가 미지원** — Claude 가 현재가 조회 후 지정가로 자동 호출합니다.
 
 `.mcp.json` 이 KIS MCP 서버를 자동 로드해서 Claude가 위 도구들을 사용합니다.
 
@@ -36,15 +45,20 @@ AI 도구로 한국 주식 모의투자를 체험하는 워크샵 키트.
 
 **신호 계산도 Claude가 도구로 호출**합니다. 멤버는 터미널 안 가고 자연어만:
 
-### 시나리오 A — 이동평균 골든크로스
+### 시나리오 A — 이동평균 골든크로스 (한국 / 미국 둘 다)
 
 ```
 > 삼성전자 골든크로스 신호 어때?
-[Claude: golden_cross_signal 호출 → {"signal": "GOLDEN_CROSS_BUY", "ma5": ..., "ma20": ...}]
+[Claude: golden_cross_signal("005930") → {"market": "KR", "signal": "...", "ma5": ..., "ma20": ...}]
+
+> 엔비디아는?
+[Claude: golden_cross_signal("NVDA") → {"market": "US", ...}]
 
 > 그럼 1주 매수해줘
-[Claude: 확인 후 buy_stock 호출]
+[Claude: 한국이면 buy_stock, 미국이면 buy_overseas_stock 호출]
 ```
+
+종목 인자가 **6자리 숫자 = 한국 (pykrx)**, **영문 심볼 = 미국 (yfinance)** 자동 판별.
 
 ### 시나리오 B — DART 대량보유 공시
 
@@ -105,6 +119,8 @@ quant-claude-workshop/
 - **`401 Unauthorized`** → KIS App Key / Secret 오타. config.yaml 직접 확인
 - **`tr_id 오류`** → 모의투자 계좌가 아닐 가능성. 실계좌면 `vendor/kis_api.py` 의 BASE_URL 과 tr_id 변경 필요
 - **Claude 가 buy_stock 안 부름** → `claude` 재실행 (MCP 서버 등록 갱신)
+- **`모의투자 장시작전 입니다` 응답** → 한국장 시간(09:00~15:30) 외이거나 미국장 시간(한국시간 22:30~05:00) 외. 시연 시간대 맞춰 한국/미국 선택
+- **미국주식 USD 잔고 0** → KIS 모의투자 콘솔에서 USD 보유고 충전. 신규 가입자는 자동 부여되는 경우가 많음 (확인 후 안내)
 
 ## 운영 모드 vs 워크샵 모드
 

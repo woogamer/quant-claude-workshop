@@ -98,6 +98,67 @@ async def list_tools() -> list[Tool]:
                 "required": ["ticker", "qty"],
             },
         ),
+        # --- 해외주식 (미국 — 한국 시간 22:30~05:00 정규장) ---
+        Tool(
+            name="get_overseas_stock_price",
+            description=(
+                "미국 주식 현재가 조회. symbol은 티커심볼 (AAPL, TSLA, NVDA 등). "
+                "exchange: NAS(나스닥, 기본), NYS(뉴욕), AMS(아멕스). "
+                "한국 시장 시간 외에 매매하려면 미국주식을 사용하세요."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "symbol": {"type": "string"},
+                    "exchange": {"type": "string", "default": "NAS"},
+                },
+                "required": ["symbol"],
+            },
+        ),
+        Tool(
+            name="get_overseas_balance",
+            description="미국주식 잔고 조회. 보유 종목, USD 평가금액, USD 예수금 반환.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "exchange": {"type": "string", "description": "NASD(전체), NYSE, AMEX", "default": "NASD"},
+                },
+            },
+        ),
+        Tool(
+            name="buy_overseas_stock",
+            description=(
+                "미국주식 매수 주문. 모의투자는 지정가만 지원 (시장가 불가). "
+                "현재가 조회 후 price 인자에 그 가격을 넣으세요. 반드시 사용자 확인 후 호출."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "symbol": {"type": "string"},
+                    "qty": {"type": "integer"},
+                    "price": {"type": "number", "description": "지정가 (USD)"},
+                    "exchange": {"type": "string", "default": "NASD"},
+                },
+                "required": ["symbol", "qty", "price"],
+            },
+        ),
+        Tool(
+            name="sell_overseas_stock",
+            description=(
+                "미국주식 매도 주문. 모의투자는 지정가만 지원. "
+                "반드시 사용자 확인 후 호출."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "symbol": {"type": "string"},
+                    "qty": {"type": "integer"},
+                    "price": {"type": "number"},
+                    "exchange": {"type": "string", "default": "NASD"},
+                },
+                "required": ["symbol", "qty", "price"],
+            },
+        ),
     ]
 
 
@@ -168,6 +229,69 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 "종목코드": arguments["ticker"],
                 "수량": arguments["qty"],
                 "가격": arguments.get("price", 0) or "시장가",
+                "응답": result.get("msg1", ""),
+            }, ensure_ascii=False, indent=2))]
+
+        elif name == "get_overseas_stock_price":
+            result = client.get_overseas_price(arguments["symbol"], arguments.get("exchange", "NAS"))
+            output = result.get("output", {})
+            return [TextContent(type="text", text=json.dumps({
+                "심볼": arguments["symbol"].upper(),
+                "거래소": arguments.get("exchange", "NAS").upper(),
+                "현재가_USD": output.get("last"),
+                "전일대비": output.get("diff"),
+                "등락률": output.get("rate"),
+                "거래량": output.get("tvol"),
+            }, ensure_ascii=False, indent=2))]
+
+        elif name == "get_overseas_balance":
+            result = client.get_overseas_balance(arguments.get("exchange", "NASD"))
+            holdings = [
+                {
+                    "심볼": item.get("ovrs_pdno"),
+                    "종목명": item.get("ovrs_item_name"),
+                    "수량": item.get("ovrs_cblc_qty"),
+                    "평균단가_USD": item.get("pchs_avg_pric"),
+                    "현재가_USD": item.get("now_pric2"),
+                    "수익률": item.get("evlu_pfls_rt"),
+                }
+                for item in result.get("output1", [])
+                if float(item.get("ovrs_cblc_qty", 0)) > 0
+            ]
+            summary = result.get("output2", {}) or {}
+            return [TextContent(type="text", text=json.dumps({
+                "보유종목": holdings,
+                "외화매수가능금액_USD": summary.get("frcr_buy_amt_smtl1"),
+                "외화예수금_USD": summary.get("frcr_dncl_amt_2"),
+                "총평가손익_USD": summary.get("tot_evlu_pfls_amt"),
+                "메시지": result.get("msg1", ""),
+            }, ensure_ascii=False, indent=2))]
+
+        elif name == "buy_overseas_stock":
+            result = client.buy_overseas(
+                arguments["symbol"], arguments["qty"], arguments["price"],
+                arguments.get("exchange", "NASD"),
+            )
+            return [TextContent(type="text", text=json.dumps({
+                "결과": "미국주식 매수 주문 완료",
+                "심볼": arguments["symbol"].upper(),
+                "수량": arguments["qty"],
+                "가격": f"${arguments['price']}",
+                "거래소": arguments.get("exchange", "NASD"),
+                "응답": result.get("msg1", ""),
+            }, ensure_ascii=False, indent=2))]
+
+        elif name == "sell_overseas_stock":
+            result = client.sell_overseas(
+                arguments["symbol"], arguments["qty"], arguments["price"],
+                arguments.get("exchange", "NASD"),
+            )
+            return [TextContent(type="text", text=json.dumps({
+                "결과": "미국주식 매도 주문 완료",
+                "심볼": arguments["symbol"].upper(),
+                "수량": arguments["qty"],
+                "가격": f"${arguments['price']}",
+                "거래소": arguments.get("exchange", "NASD"),
                 "응답": result.get("msg1", ""),
             }, ensure_ascii=False, indent=2))]
 

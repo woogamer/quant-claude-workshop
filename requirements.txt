@@ -3,3 +3,4 @@ pyyaml>=6.0
 mcp>=1.0
 pandas>=2.0
 pykrx>=1.0.45
+yfinance>=0.2.40

@@ -188,3 +188,75 @@ class KISClient:
         action = "매수" if side == "buy" else "매도"
         log.info(f"주문 완료: {action} {ticker} {qty}주 (가격: {price or '시장가'})")
         return result
+
+    # ------------------------------------------------------------------ #
+    #  해외주식 (미국)
+    # ------------------------------------------------------------------ #
+
+    def get_overseas_price(self, symbol: str, exchange: str = "NAS") -> dict[str, Any]:
+        """해외종목의 현재가를 조회합니다. exchange: NAS(나스닥), NYS(뉴욕), AMS(아멕스)."""
+        self._ensure_auth()
+        url = f"{BASE_URL}/uapi/overseas-price/v1/quotations/price"
+        params = {"AUTH": "", "EXCD": exchange.upper(), "SYMB": symbol.upper()}
+        resp = _request_with_retry(
+            "GET", url, params=params,
+            headers=self._headers("HHDFS00000300"), timeout=10,
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    def get_overseas_balance(self, exchange: str = "NASD") -> dict[str, Any]:
+        """해외주식 잔고 조회. exchange: NASD(전체미국), NYSE, AMEX."""
+        self._ensure_auth()
+        url = f"{BASE_URL}/uapi/overseas-stock/v1/trading/inquire-balance"
+        params = {
+            "CANO": self._account_no[:8],
+            "ACNT_PRDT_CD": self._account_no[8:],
+            "OVRS_EXCG_CD": exchange.upper(),
+            "TR_CRCY_CD": "USD",
+            "CTX_AREA_FK200": "",
+            "CTX_AREA_NK200": "",
+        }
+        resp = _request_with_retry(
+            "GET", url, params=params,
+            headers=self._headers("VTTS3012R"), timeout=10,
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    def buy_overseas(self, symbol: str, qty: int, price: float, exchange: str = "NASD") -> dict[str, Any]:
+        """해외주식 매수 (모의투자는 지정가만)."""
+        return self._place_overseas_order(symbol, qty, price, exchange, side="buy")
+
+    def sell_overseas(self, symbol: str, qty: int, price: float, exchange: str = "NASD") -> dict[str, Any]:
+        """해외주식 매도 (모의투자는 지정가만)."""
+        return self._place_overseas_order(symbol, qty, price, exchange, side="sell")
+
+    def _place_overseas_order(
+        self, symbol: str, qty: int, price: float, exchange: str, *, side: str,
+    ) -> dict[str, Any]:
+        self._ensure_auth()
+        tr_id = "VTTT1002U" if side == "buy" else "VTTT1006U"
+        url = f"{BASE_URL}/uapi/overseas-stock/v1/trading/order"
+        payload = {
+            "CANO": self._account_no[:8],
+            "ACNT_PRDT_CD": self._account_no[8:],
+            "OVRS_EXCG_CD": exchange.upper(),
+            "PDNO": symbol.upper(),
+            "ORD_QTY": str(qty),
+            "OVRS_ORD_UNPR": str(price),
+            "ORD_SVR_DVSN_CD": "0",
+            "ORD_DVSN": "00",
+            "SLL_TYPE": "" if side == "buy" else "00",
+            "CTAC_TLNO": "",
+            "MGCO_APTM_ODNO": "",
+        }
+        resp = _request_with_retry(
+            "POST", url, json=payload,
+            headers=self._headers(tr_id), timeout=10,
+        )
+        resp.raise_for_status()
+        result = resp.json()
+        action = "매수" if side == "buy" else "매도"
+        log.info(f"해외주문 완료: {action} {symbol} {qty}주 @ ${price} ({exchange})")
+        return result
