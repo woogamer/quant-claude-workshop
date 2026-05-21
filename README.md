@@ -56,6 +56,19 @@ AI 도구로 한국 주식 모의투자를 체험하는 워크샵 키트.
 [Claude: 종목명·보고 종류로 판단 → 추천 → 사용자 OK 후 buy_stock]
 ```
 
+### 시나리오 C — 내부자 매수 시그널 (한 마디)
+
+```
+> DART 공시 찾아봐서 내부자 매수 시그널 있는 종목 매수해줘
+[Claude: insider_buying_signals 호출 → 임원·주요주주 순취득 종목 리스트]
+[Claude: 가장 강한 시그널 1~2개 추천 + 이유]
+[사용자: "좋아 가장 강한 시그널 1주 매수"]
+[Claude: buy_stock 호출]
+```
+
+내부적으로 DART `elestock.json` 의 `sp_stock_lmp_irds_cnt` (보유 증감 주식수) 가 양수인
+보고만 추출 → 보고자별 합산 → 매수 강도 순 정렬.
+
 ### 알고리즘을 직접 수정하고 싶다면
 
 도구 내부는 `scripts/golden_cross.py`, `scripts/dart_shareholding.py` 에 함수로 들어있습니다.
@@ -81,7 +94,7 @@ quant-claude-workshop/
 ├── scripts/
 │   ├── demo_price.py      # KIS 연결 확인 (자연어 매매 전 smoke test)
 │   ├── golden_cross.py    # 이동평균 골든크로스 신호 (Goal 2 시나리오 A)
-│   └── dart_shareholding.py  # DART 대량보유 공시 (Goal 2 시나리오 B)
+│   └── dart_shareholding.py  # DART 대량보유 + 내부자 매수 (Goal 2 시나리오 B, C)
 ├── config.example.yaml    # 키 입력 템플릿
 └── setup.sh               # 첫 셋업 (config.yaml 생성)
 ```

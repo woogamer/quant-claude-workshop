@@ -19,7 +19,7 @@ from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
 from scripts.golden_cross import detect_cross
-from scripts.dart_shareholding import fetch_recent, load_dart_key
+from scripts.dart_shareholding import fetch_recent, fetch_insider_buying, load_dart_key
 
 
 app = Server("signals")
@@ -56,6 +56,22 @@ async def list_tools() -> list[Tool]:
                 },
             },
         ),
+        Tool(
+            name="insider_buying_signals",
+            description=(
+                "최근 N일 DART 임원·주요주주 보고 중 **순취득(매수)** 만 추출합니다. "
+                "내부자가 자기 회사 주식을 추가 매입했다는 신호 — 일반적으로 긍정적 시그널로 해석. "
+                "stock_code, net_shares_acquired, reporters(보고자), net_rate_change_pct 반환. "
+                "net_shares_acquired 가 클수록 강한 시그널."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "days_back": {"type": "integer", "description": "조회 일수 (기본 5)", "default": 5},
+                    "limit": {"type": "integer", "description": "결과 최대 건수 (기본 10)", "default": 10},
+                },
+            },
+        ),
     ]
 
 
@@ -83,6 +99,16 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             ]
             return [TextContent(type="text", text=json.dumps(
                 {"count": len(output), "disclosures": output},
+                ensure_ascii=False, indent=2,
+            ))]
+
+        elif name == "insider_buying_signals":
+            api_key = load_dart_key()
+            days = arguments.get("days_back", 5)
+            limit = arguments.get("limit", 10)
+            signals = fetch_insider_buying(api_key, days_back=days, limit=limit)
+            return [TextContent(type="text", text=json.dumps(
+                {"count": len(signals), "signals": signals},
                 ensure_ascii=False, indent=2,
             ))]
 
