@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AI로 모의 주식 매매해보기 · 2026.06.04 워크샵</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css" id="theme">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+<style>
+:root { --r-main-font-size: 28px; }
+.reveal h1 { font-size: 1.8em; }
+.reveal h2 { font-size: 1.4em; margin-bottom: 0.4em; }
+.reveal h3 { font-size: 1.1em; }
+.reveal table { font-size: 0.65em; margin: 0.4em auto; border-collapse: collapse; }
+.reveal table th, .reveal table td { padding: 0.3em 0.6em; border-bottom: 1px solid #ddd; }
+.reveal table th { background: #f5f5f5; }
+.reveal pre { font-size: 0.55em; max-height: 60vh; box-shadow: none; }
+.reveal pre code { padding: 1em; border-radius: 4px; }
+.reveal section { text-align: left; }
+.reveal section[data-state="center"] { text-align: center; }
+.reveal blockquote { border-left: 3px solid #888; padding-left: 1em; font-style: normal; }
+.reveal strong { color: #c0392b; }
+.reveal .slides { font-size: 0.9em; }
+.reveal section h1 + p,
+.reveal section h2 + p { margin-top: 0.5em; }
+#loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: sans-serif; color: #888; }
+</style>
+</head>
+<body>
+<div id="loading">슬라이드 로딩 중…</div>
+<div class="reveal">
+  <div class="slides"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/markdown/markdown.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
+<script>
+fetch('SLIDES.md')
+  .then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.text();
+  })
+  .then(md => {
+    const stripped = md.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+    const cleaned = stripped.replace(/<!--\s*_class:[\s\S]*?-->/g, '');
+    const slides = cleaned.split(/\r?\n---\r?\n/);
+    const container = document.querySelector('.slides');
+    slides.forEach(content => {
+      const section = document.createElement('section');
+      section.setAttribute('data-markdown', '');
+      const textarea = document.createElement('textarea');
+      textarea.setAttribute('data-template', '');
+      textarea.textContent = content.trim();
+      section.appendChild(textarea);
+      container.appendChild(section);
+    });
+    document.getElementById('loading').remove();
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      controls: true,
+      progress: true,
+      transition: 'slide',
+      plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+    });
+  })
+  .catch(err => {
+    document.getElementById('loading').textContent = 'SLIDES.md 로드 실패: ' + err.message;
+  });
+</script>
+</body>
+</html>
