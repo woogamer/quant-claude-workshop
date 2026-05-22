@@ -27,6 +27,14 @@
 }
 
 html, body { background: var(--bg); }
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 0%, rgba(30, 58, 138, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 92% 100%, rgba(5, 150, 105, 0.05) 0%, transparent 45%);
+  pointer-events: none; z-index: 0;
+}
 
 .reveal {
   font-family: var(--font-sans);
@@ -34,21 +42,9 @@ html, body { background: var(--bg); }
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
-
-.reveal .slides { text-align: left; font-size: 26px; letter-spacing: -0.005em; }
-.reveal .slides section { padding: 1em 1.4em; }
-
-/* Subtle background flair */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 8% 0%, rgba(30, 58, 138, 0.05) 0%, transparent 45%),
-    radial-gradient(circle at 92% 100%, rgba(5, 150, 105, 0.05) 0%, transparent 45%);
-  pointer-events: none;
-  z-index: 0;
-}
+.reveal .slides { text-align: left; font-size: 23px; letter-spacing: -0.005em; }
+.reveal .slides section { padding: 0.8em 1.3em; }
+.reveal p { margin: 0.4em 0; line-height: 1.5; }
 
 /* Headings */
 .reveal h1, .reveal h2, .reveal h3 {
@@ -58,40 +54,35 @@ body::before {
   letter-spacing: -0.025em;
   margin-top: 0;
 }
-.reveal h1 { font-size: 2.2em; line-height: 1.1; margin-bottom: 0.4em; }
+.reveal h1 { font-size: 2em; line-height: 1.1; margin-bottom: 0.4em; }
 .reveal h2 {
-  font-size: 1.5em;
-  line-height: 1.2;
-  margin-bottom: 0.7em;
-  padding-bottom: 0.3em;
+  font-size: 1.4em; line-height: 1.2;
+  margin-bottom: 0.5em; padding-bottom: 0.25em;
   border-bottom: 3px solid var(--primary);
   display: inline-block;
 }
-.reveal h3 { font-size: 1.05em; color: var(--ink); margin: 0.6em 0 0.3em; }
+.reveal h3 { font-size: 1em; color: var(--ink); margin: 0.5em 0 0.25em; }
+.reveal h4 { font-size: 0.95em; color: var(--primary); margin: 0.6em 0 0.2em; font-weight: 700; }
 
-/* Cover slide — first one (no H2, just H1) */
+/* Cover slide */
 .reveal .slides > section:first-child { text-align: center; }
 .reveal .slides > section:first-child h1 {
   font-size: 3em;
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
   margin-bottom: 0.5em;
 }
 .reveal .slides > section:first-child p { color: var(--ink-soft); }
 .reveal .slides > section:first-child p strong {
-  color: var(--ink);
-  font-weight: 600;
-  font-size: 1.05em;
+  color: var(--ink); font-weight: 600; font-size: 1.05em;
 }
 
 /* Tables */
 .reveal table {
-  font-size: 0.7em;
+  font-size: 0.72em;
   border-collapse: collapse;
-  margin: 0.7em auto;
+  margin: 0.55em auto;
   width: 100%;
   background: white;
   border-radius: 10px;
@@ -99,18 +90,14 @@ body::before {
   box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 .reveal table thead th {
-  background: var(--primary);
-  color: white;
-  text-align: left;
-  padding: 0.55em 0.9em;
-  font-weight: 600;
-  font-size: 0.95em;
-  letter-spacing: -0.01em;
+  background: var(--primary); color: white;
+  text-align: left; padding: 0.5em 0.85em;
+  font-weight: 600; font-size: 0.95em;
 }
 .reveal table tbody tr:nth-child(even) { background: #F9FAFB; }
 .reveal table tbody tr:hover { background: #EFF6FF; }
 .reveal table td {
-  padding: 0.5em 0.9em;
+  padding: 0.45em 0.85em;
   border-bottom: 1px solid var(--line);
   vertical-align: middle;
 }
@@ -119,76 +106,60 @@ body::before {
 .reveal table td.num-pos strong { color: var(--accent); }
 .reveal table td.num-neg strong { color: var(--danger); }
 
-/* Status pills (post-processed) */
+/* Status pills */
 .pill {
-  display: inline-block;
-  padding: 0.2em 0.7em;
-  border-radius: 999px;
-  font-size: 0.85em;
-  font-weight: 600;
-  line-height: 1.5;
-  white-space: nowrap;
+  display: inline-block; padding: 0.2em 0.7em;
+  border-radius: 999px; font-size: 0.85em;
+  font-weight: 600; line-height: 1.5; white-space: nowrap;
 }
 .pill-live    { background: #D1FAE5; color: #065F46; }
 .pill-paper   { background: #FEF3C7; color: #92400E; }
 .pill-stopped { background: #E5E7EB; color: #374151; }
 
-/* Inline code */
+/* Code */
 .reveal code {
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-  background: #F3F4F6;
-  color: #BE185D;
-  padding: 0.1em 0.45em;
-  border-radius: 4px;
+  font-family: var(--font-mono); font-size: 0.82em;
+  background: #F3F4F6; color: #BE185D;
+  padding: 0.1em 0.45em; border-radius: 4px;
 }
-
-/* Code blocks */
 .reveal pre {
-  font-size: 0.55em;
-  margin: 0.7em 0;
+  font-size: 0.5em; margin: 0.5em 0;
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  border-radius: 8px;
-  max-height: 60vh;
+  border-radius: 8px; max-height: 55vh;
   background: var(--code-bg);
 }
 .reveal pre code {
-  padding: 1.1em 1.3em;
-  background: var(--code-bg);
-  color: #E5E7EB;
-  border-radius: 8px;
-  font-size: 1em;
-  line-height: 1.5;
+  padding: 1em 1.2em; background: var(--code-bg);
+  color: #E5E7EB; border-radius: 8px;
+  font-size: 1em; line-height: 1.5;
 }
 
 /* Emphasis */
 .reveal strong { color: var(--danger); font-weight: 700; }
 .reveal em { color: var(--primary); font-style: normal; font-weight: 600; }
 
-/* Blockquote callout */
+/* Blockquote */
 .reveal blockquote {
   border-left: 4px solid var(--accent);
   background: #F0FDF4;
-  padding: 0.7em 1em;
-  margin: 0.7em 0;
+  padding: 0.6em 0.9em; margin: 0.5em 0;
   font-style: normal;
   border-radius: 0 8px 8px 0;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 
 /* Lists */
-.reveal ul, .reveal ol { margin-left: 1.3em; }
-.reveal li { margin: 0.25em 0; line-height: 1.5; }
+.reveal ul, .reveal ol { margin-left: 1.2em; }
+.reveal li { margin: 0.2em 0; line-height: 1.5; }
 .reveal li::marker { color: var(--muted); }
 
-/* Arrow callout (paragraphs starting with →) */
+/* Arrow callout */
 .arrow-callout {
   color: var(--accent) !important;
   font-weight: 600;
   border-left: 3px solid var(--accent);
   background: #ECFDF5;
-  padding: 0.4em 0.9em;
-  margin: 0.4em 0;
+  padding: 0.35em 0.85em;
+  margin: 0.35em 0;
   border-radius: 0 6px 6px 0;
 }
 
@@ -196,15 +167,10 @@ body::before {
 .reveal .controls { color: var(--primary); }
 .reveal .progress { color: var(--accent); height: 4px; }
 .reveal .slide-number {
-  background: rgba(30, 58, 138, 0.1);
-  color: var(--primary);
-  padding: 0.25em 0.65em;
-  border-radius: 6px;
-  font-size: 0.55em;
-  font-family: var(--font-mono);
-  font-weight: 600;
-  bottom: 14px;
-  right: 14px;
+  background: rgba(30, 58, 138, 0.1); color: var(--primary);
+  padding: 0.25em 0.65em; border-radius: 6px;
+  font-size: 0.55em; font-family: var(--font-mono);
+  font-weight: 600; bottom: 14px; right: 14px;
 }
 
 /* Loading */
@@ -214,22 +180,104 @@ body::before {
   font-family: var(--font-sans); color: var(--muted); font-size: 18px;
 }
 
-/* Section divider (slides that are just a single H2) */
+/* Section divider */
 .reveal section.section-divider {
   background: linear-gradient(135deg, var(--primary), var(--accent));
   text-align: center;
 }
 .reveal section.section-divider h2 {
-  color: white;
-  border: none;
-  font-size: 2.6em;
-  display: block;
+  color: white; border: none; font-size: 2.5em; display: block;
 }
 
-/* Print / PDF (Reveal handles this via ?print-pdf, basic safety) */
-@media print {
-  body::before { display: none; }
+/* ============ STAT CARDS (results slide) ============ */
+.result-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9em;
+  margin: 0.5em 0;
 }
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 0.9em 1em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-top: 4px solid var(--primary);
+}
+.stat-card-header {
+  font-weight: 700; color: var(--primary);
+  font-size: 0.75em; margin-bottom: 0.4em;
+  letter-spacing: -0.01em;
+}
+.stat-alpha {
+  background: #ECFDF5;
+  border-radius: 8px;
+  padding: 0.55em 0.9em;
+  margin: 0.4em 0;
+  border-left: 4px solid var(--accent);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.6em;
+}
+.stat-alpha.neg { background: #FEF2F2; border-left-color: var(--danger); }
+.stat-alpha-label { font-size: 0.6em; color: var(--muted); font-weight: 600; line-height: 1.3; }
+.stat-alpha-val { font-size: 1.5em; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
+.stat-alpha.neg .stat-alpha-val { color: var(--danger); }
+.stat-mini { width: 100%; font-size: 0.62em; border-collapse: collapse; margin: 0; box-shadow: none; background: transparent; }
+.stat-mini tr { background: transparent !important; }
+.stat-mini td { padding: 0.25em 0; color: var(--muted); border: none; }
+.stat-mini td:last-child { text-align: right; color: var(--ink); font-weight: 600; }
+
+/* ============ BAR CHART (PRISM-C scenarios) ============ */
+.bar-chart-card {
+  background: white;
+  border-radius: 12px;
+  padding: 0.9em 1em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-top: 4px solid var(--accent);
+  margin-top: 0.5em;
+}
+.chart-card-header {
+  font-weight: 700; color: var(--accent);
+  font-size: 0.75em; margin-bottom: 0.5em;
+  letter-spacing: -0.01em;
+}
+.bar-chart { display: flex; flex-direction: column; gap: 0.35em; }
+.bar-row { display: flex; align-items: center; gap: 0.6em; }
+.bar-label { flex: 0 0 150px; font-size: 0.62em; font-weight: 600; color: var(--ink); }
+.bar-meta { flex: 0 0 80px; font-size: 0.55em; color: var(--muted); }
+.bar-track { flex: 1; background: #F3F4F6; border-radius: 999px; height: 22px; position: relative; }
+.bar-fill {
+  height: 100%; border-radius: 999px;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 0 0.7em; color: white;
+  font-size: 0.62em; font-weight: 700; white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.bar-pos { background: linear-gradient(90deg, #10B981, #059669); }
+.bar-neg { background: linear-gradient(90deg, #F87171, #DC2626); }
+
+/* ============ STRATEGY TABLE → STATUS GRID (overview slide) ============ */
+.strategy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6em;
+  margin: 0.5em 0;
+}
+.strategy-item {
+  background: white;
+  border-radius: 10px;
+  padding: 0.6em 0.85em;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-left: 4px solid var(--line);
+  font-size: 0.78em;
+}
+.strategy-item.live { border-left-color: var(--accent); }
+.strategy-item.paper { border-left-color: var(--warn); }
+.strategy-item.stopped { border-left-color: var(--muted); }
+.strategy-item-title { font-weight: 700; color: var(--ink); margin-bottom: 0.2em; }
+.strategy-item-desc { color: var(--muted); font-size: 0.85em; line-height: 1.4; }
+.strategy-item-status { margin-top: 0.4em; }
+
+@media print { body::before { display: none; } }
 </style>
 </head>
 <body>
@@ -261,15 +309,10 @@ fetch('SLIDES.md')
     document.getElementById('loading').remove();
 
     Reveal.initialize({
-      hash: true,
-      slideNumber: 'c/t',
-      controls: true,
-      progress: true,
-      transition: 'fade',
-      transitionSpeed: 'fast',
-      width: 1280,
-      height: 800,
-      margin: 0.05,
+      hash: true, slideNumber: 'c/t',
+      controls: true, progress: true,
+      transition: 'fade', transitionSpeed: 'fast',
+      width: 1280, height: 800, margin: 0.04,
       plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
     });
 
@@ -281,48 +324,185 @@ fetch('SLIDES.md')
   });
 
 function decorate() {
-  // Status pills in tables
-  document.querySelectorAll('.reveal table td').forEach(td => {
-    if (td.dataset.decorated) return;
+  document.querySelectorAll('.reveal .slides > section').forEach(section => {
+    if (section.dataset.decorated) return;
+    decoratePills(section);
+    decorateNumeric(section);
+    decorateArrows(section);
+    transformResultsSlide(section);
+    transformStrategySlide(section);
+    section.dataset.decorated = '1';
+  });
+}
+
+function decoratePills(section) {
+  section.querySelectorAll('table td').forEach(td => {
     const t = td.textContent.trim();
     let cls = null;
     if (/^✅/.test(t)) cls = 'pill-live';
     else if (/^🧪/.test(t)) cls = 'pill-paper';
     else if (/^⏸/.test(t)) cls = 'pill-stopped';
-    if (cls) {
-      td.innerHTML = '<span class="pill ' + cls + '">' + t + '</span>';
-      td.dataset.decorated = '1';
-      return;
-    }
-    // Color numeric cells (+/- percentages in strong)
+    if (cls) td.innerHTML = '<span class="pill ' + cls + '">' + t + '</span>';
+  });
+}
+
+function decorateNumeric(section) {
+  section.querySelectorAll('table td').forEach(td => {
     const strong = td.querySelector('strong');
-    if (strong) {
-      const s = strong.textContent.trim();
-      if (/^\+/.test(s)) td.classList.add('num-pos');
-      else if (/^[−-]/.test(s)) td.classList.add('num-neg');
+    if (!strong) return;
+    const s = strong.textContent.trim();
+    if (/^\+/.test(s)) td.classList.add('num-pos');
+    else if (/^[−-]/.test(s)) td.classList.add('num-neg');
+  });
+}
+
+function decorateArrows(section) {
+  section.querySelectorAll('p').forEach(p => {
+    if (p.textContent.trim().startsWith('→')) p.classList.add('arrow-callout');
+  });
+}
+
+function transformResultsSlide(section) {
+  const h2 = section.querySelector('h2');
+  if (!h2 || !/^지금 결과/.test(h2.textContent.trim())) return;
+
+  // Collect (label paragraph, table) pairs
+  const blocks = [];
+  let pendingLabel = null;
+  [...section.children].forEach(child => {
+    if (child === h2) return;
+    if (child.tagName === 'P') {
+      const strong = child.querySelector('strong');
+      if (strong && child.textContent.trim().startsWith(strong.textContent.trim().slice(0,1))) {
+        pendingLabel = strong.textContent.trim();
+      }
+    } else if (child.tagName === 'TABLE') {
+      blocks.push({ label: pendingLabel, table: child });
+      pendingLabel = null;
     }
-    td.dataset.decorated = '1';
+  });
+  if (!blocks.length) return;
+
+  // Clear old children except h2
+  [...section.children].forEach(c => { if (c !== h2) c.remove(); });
+
+  const cardsWrap = document.createElement('div');
+  cardsWrap.className = 'result-cards';
+  let chartCard = null;
+
+  blocks.forEach(b => {
+    const ths = [...b.table.querySelectorAll('thead th')].map(th => th.textContent.trim());
+    if (ths[0] === '시나리오') {
+      chartCard = buildChartCard(b.label, b.table);
+    } else {
+      cardsWrap.appendChild(buildStatCard(b.label, b.table));
+    }
   });
 
-  // Arrow callouts
-  document.querySelectorAll('.reveal p').forEach(p => {
-    if (p.dataset.decorated) return;
-    if (p.textContent.trim().startsWith('→')) {
-      p.classList.add('arrow-callout');
-    }
-    p.dataset.decorated = '1';
+  if (cardsWrap.children.length) section.appendChild(cardsWrap);
+  if (chartCard) section.appendChild(chartCard);
+}
+
+function buildStatCard(label, table) {
+  const card = document.createElement('div');
+  card.className = 'stat-card';
+
+  const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
+    const cells = [...tr.querySelectorAll('td')];
+    return {
+      key: cells[0].textContent.trim(),
+      val: cells[1] ? cells[1].textContent.trim() : '',
+      hasStrong: cells[1] && !!cells[1].querySelector('strong')
+    };
   });
 
-  // Section divider: slides with only an H2 (no other significant content)
-  document.querySelectorAll('.reveal .slides > section').forEach(section => {
-    if (section.dataset.checkedDivider) return;
-    const h2s = section.querySelectorAll('h2');
-    const meaningful = section.querySelectorAll('h1, h2, h3, p, ul, ol, table, pre, img');
-    if (h2s.length === 1 && meaningful.length === 1) {
-      section.classList.add('section-divider');
-    }
-    section.dataset.checkedDivider = '1';
+  const alphaRow = rows.find(r => /알파/.test(r.key));
+  const otherRows = rows.filter(r => r !== alphaRow);
+
+  let html = '<div class="stat-card-header">' + (label || '') + '</div>';
+  if (alphaRow) {
+    const isPos = /^\+/.test(alphaRow.val);
+    const cleanVal = alphaRow.val.replace(/[\(\)]/g, '').replace(/[✅❌]/g, '').replace(/시장 수준/, '').trim();
+    html += '<div class="stat-alpha ' + (isPos ? '' : 'neg') + '">' +
+      '<div class="stat-alpha-label">' + alphaRow.key + '</div>' +
+      '<div class="stat-alpha-val">' + cleanVal + '</div>' +
+    '</div>';
+  }
+  html += '<table class="stat-mini"><tbody>' +
+    otherRows.map(r => '<tr><td>' + r.key + '</td><td>' + r.val + '</td></tr>').join('') +
+    '</tbody></table>';
+
+  card.innerHTML = html;
+  return card;
+}
+
+function buildChartCard(label, table) {
+  const ths = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim());
+  const totalIdx = ths.indexOf('총 P&L');
+  const tryIdx = ths.indexOf('시도');
+  const winIdx = ths.indexOf('승률');
+
+  const rows = [...table.querySelectorAll('tbody tr')].map(tr => {
+    const cells = [...tr.querySelectorAll('td')].map(td => td.textContent.trim());
+    const m = cells[totalIdx].match(/([+-]?\d+\.?\d*)/);
+    return {
+      label: cells[0],
+      tries: tryIdx >= 0 ? cells[tryIdx] : '',
+      winRate: winIdx >= 0 ? cells[winIdx] : '',
+      value: m ? parseFloat(m[1]) : 0
+    };
   });
+
+  const max = Math.max(...rows.map(r => Math.abs(r.value)), 1);
+  const card = document.createElement('div');
+  card.className = 'bar-chart-card';
+  card.innerHTML = '<div class="chart-card-header">' + (label || '') + ' · 총 P&L 비교</div>' +
+    '<div class="bar-chart">' +
+    rows.map(r => {
+      const pct = (Math.abs(r.value) / max) * 100;
+      const cls = r.value >= 0 ? 'bar-pos' : 'bar-neg';
+      const sign = r.value > 0 ? '+' : '';
+      return '<div class="bar-row">' +
+        '<div class="bar-label">' + r.label + '</div>' +
+        '<div class="bar-meta">' + r.tries + '회 · ' + r.winRate + '</div>' +
+        '<div class="bar-track"><div class="bar-fill ' + cls + '" style="width:' + pct + '%">' + sign + r.value + '%</div></div>' +
+      '</div>';
+    }).join('') +
+    '</div>';
+  return card;
+}
+
+function transformStrategySlide(section) {
+  const h2 = section.querySelector('h2');
+  if (!h2 || !/6개 전략/.test(h2.textContent.trim())) return;
+  const table = section.querySelector('table');
+  if (!table) return;
+  const ths = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim());
+  if (ths[0] !== '전략') return;
+
+  const items = [...table.querySelectorAll('tbody tr')].map(tr => {
+    const cells = [...tr.querySelectorAll('td')];
+    return {
+      name: cells[0].innerHTML,
+      desc: cells[1].textContent.trim(),
+      status: cells[2].textContent.trim()
+    };
+  });
+
+  const grid = document.createElement('div');
+  grid.className = 'strategy-grid';
+  grid.innerHTML = items.map(it => {
+    let cls = 'stopped';
+    let pill = 'pill-stopped';
+    if (/✅/.test(it.status)) { cls = 'live'; pill = 'pill-live'; }
+    else if (/🧪/.test(it.status)) { cls = 'paper'; pill = 'pill-paper'; }
+    return '<div class="strategy-item ' + cls + '">' +
+      '<div class="strategy-item-title">' + it.name + '</div>' +
+      '<div class="strategy-item-desc">' + it.desc + '</div>' +
+      '<div class="strategy-item-status"><span class="pill ' + pill + '">' + it.status + '</span></div>' +
+    '</div>';
+  }).join('');
+  table.replaceWith(grid);
 }
 </script>
 </body>
