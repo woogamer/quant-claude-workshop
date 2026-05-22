@@ -233,18 +233,75 @@ Claude가 도구 골라 호출 → KIS API → 모의계좌 체결
 
 ## 이제 여러분 차례 — 실습 30분
 
-본인 노트북 열고 같이 해봅니다.
+본인 노트북 열고 같이 해봅니다. **사전 준비 4가지** (합 약 50분):
 
-**준비물 확인**:
-- ✅ GitHub 계정
-- ✅ KIS 모의투자 + 해외주식 신청
-- ✅ Anthropic Claude Pro 결제
+- ✅ **GitHub 계정** (무료, 5분)
+- ✅ **KIS 모의투자 + API 키** (30분 — 다음 2장에 스크린샷으로 자세히)
+- ✅ **Anthropic Claude Pro** ($20/월, 5분 · 한 달만 결제해도 OK)
+- ✅ **노트북** (Mac/Win/Linux 다 OK — 브라우저만 있으면 됨)
 
 준비 안 되신 분도 OK — 옆 사람 화면 같이 보면서 흐름만 따라오셔도 됩니다.
 
-**1단계**: github.com/woogamer/quant-claude-workshop → Code → Codespaces → Create
-**2단계**: `./setup.sh` → KIS 키 입력
-**3단계**: `claude` → "엔비디아 현재가 알려줘" 시작
+→ 사전 준비는 워크샵 **전**에 본인이 하는 것. 당일은 Codespace 띄우고 `./setup.sh` 만 실행.
+
+---
+
+## KIS 모의투자 신청 (스마트폰 MTS) · 약 10분
+
+워크샵이 저녁이라 한국장 마감 후. **국내+해외 5억원 / 3개월** 으로 신청해서 미국 종목까지 거래.
+
+<div class="step-grid">
+<figure><img src="images/01_mts_menu.jpg" alt=""><figcaption><strong>a.</strong> 메뉴 → 모의투자현황 → 상시 모의투자</figcaption></figure>
+<figure><img src="images/02_mts_select_contest.jpg" alt=""><figcaption><strong>b.</strong> 상시 모의투자 카드 선택</figcaption></figure>
+<figure><img src="images/03_mts_signup_league.jpg" alt=""><figcaption><strong>c.</strong> 국내+해외 5억원 / 3개월 체크</figcaption></figure>
+<figure><img src="images/04_mts_signup_confirm.jpg" alt=""><figcaption><strong>d.</strong> 통합증거금 + 동의 + 확인</figcaption></figure>
+</div>
+
+→ 신청 완료 후 **모의계좌번호** (8자리 숫자, 예 `50189***`) 가 발급. 다음 단계에서 사용.
+
+---
+
+## KIS Developers 포털에서 API 키 발급 · 약 10분
+
+[apiportal.koreainvestment.com](https://apiportal.koreainvestment.com/) 회원가입 → 모의투자계좌 등록 → 키 3개 발급.
+
+<div class="step-grid cols-2">
+<figure><img src="images/05_kis_developers_apply.png" alt=""><figcaption><strong>a.</strong> KIS Developers 서비스 신청 → 모의투자계좌 체크 → 8자리 계좌번호 입력 → 인증</figcaption></figure>
+<figure><img src="images/06_kis_apikey_issued.png" alt=""><figcaption><strong>b.</strong> 발급 완료 — APP Key · APP Secret · 계좌번호 (3개) 복사·메모</figcaption></figure>
+</div>
+
+> 이 **APP Key · APP Secret · 계좌번호** 3개가 워크샵 당일 `./setup.sh` 에서 필요합니다.
+> 모의투자라 진짜 돈은 안 들지만, 키는 다른 사람에게 안 보이게 보관.
+
+---
+
+## 워크샵 당일 — Codespace 띄우고 4단계
+
+**Step 1 — Codespace 띄우기 (2분)**
+`github.com/woogamer/quant-claude-workshop` → 우상단 `<> Code` → **Codespaces** 탭 → **Create codespace**
+→ 1~2분 부팅. 브라우저 안에 VS Code + 터미널 자동 오픈.
+
+**Step 2 — KIS 키 입력 (3분)**
+```bash
+./setup.sh
+```
+APP Key · APP Secret · 계좌번호 (`50012345-01` 형식) · DART 키 (선택, 엔터 스킵 OK).
+
+**Step 3 — 연결 확인 (1분)**
+```bash
+python scripts/demo_price.py 005930
+```
+"삼성전자 현재가 ... 정상 연결 확인 완료" 가 뜨면 OK.
+
+**Step 4 — Claude Code 실행 → 자연어 매매**
+```bash
+claude
+> 엔비디아 현재가 알려줘
+> 골든크로스 신호 어때?
+> 1주 매수해줘
+```
+
+→ 막히는 거 있으면 손 들어주세요. 자주 막히는 5가지는 `docs/SETUP_GUIDE.md` 에 정리.
 
 ---
 
