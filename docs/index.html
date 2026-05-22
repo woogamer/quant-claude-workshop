@@ -4,28 +4,232 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>AI로 모의 주식 매매해보기 · 2026.06.04 워크샵</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reset.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css" id="theme">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
 <style>
-:root { --r-main-font-size: 28px; }
-.reveal h1 { font-size: 1.8em; }
-.reveal h2 { font-size: 1.4em; margin-bottom: 0.4em; }
-.reveal h3 { font-size: 1.1em; }
-.reveal table { font-size: 0.65em; margin: 0.4em auto; border-collapse: collapse; }
-.reveal table th, .reveal table td { padding: 0.3em 0.6em; border-bottom: 1px solid #ddd; }
-.reveal table th { background: #f5f5f5; }
-.reveal pre { font-size: 0.55em; max-height: 60vh; box-shadow: none; }
-.reveal pre code { padding: 1em; border-radius: 4px; }
-.reveal section { text-align: left; }
-.reveal section[data-state="center"] { text-align: center; }
-.reveal blockquote { border-left: 3px solid #888; padding-left: 1em; font-style: normal; }
-.reveal strong { color: #c0392b; }
-.reveal .slides { font-size: 0.9em; }
-.reveal section h1 + p,
-.reveal section h2 + p { margin-top: 0.5em; }
-#loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: sans-serif; color: #888; }
+:root {
+  --bg: #FAFAF7;
+  --ink: #111827;
+  --ink-soft: #374151;
+  --muted: #6B7280;
+  --line: #E5E7EB;
+  --primary: #1E3A8A;
+  --primary-soft: #3B82F6;
+  --accent: #059669;
+  --warn: #D97706;
+  --danger: #DC2626;
+  --code-bg: #1E1B2E;
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+}
+
+html, body { background: var(--bg); }
+
+.reveal {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+.reveal .slides { text-align: left; font-size: 26px; letter-spacing: -0.005em; }
+.reveal .slides section { padding: 1em 1.4em; }
+
+/* Subtle background flair */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 0%, rgba(30, 58, 138, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 92% 100%, rgba(5, 150, 105, 0.05) 0%, transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Headings */
+.reveal h1, .reveal h2, .reveal h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.025em;
+  margin-top: 0;
+}
+.reveal h1 { font-size: 2.2em; line-height: 1.1; margin-bottom: 0.4em; }
+.reveal h2 {
+  font-size: 1.5em;
+  line-height: 1.2;
+  margin-bottom: 0.7em;
+  padding-bottom: 0.3em;
+  border-bottom: 3px solid var(--primary);
+  display: inline-block;
+}
+.reveal h3 { font-size: 1.05em; color: var(--ink); margin: 0.6em 0 0.3em; }
+
+/* Cover slide — first one (no H2, just H1) */
+.reveal .slides > section:first-child { text-align: center; }
+.reveal .slides > section:first-child h1 {
+  font-size: 3em;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  margin-bottom: 0.5em;
+}
+.reveal .slides > section:first-child p { color: var(--ink-soft); }
+.reveal .slides > section:first-child p strong {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 1.05em;
+}
+
+/* Tables */
+.reveal table {
+  font-size: 0.7em;
+  border-collapse: collapse;
+  margin: 0.7em auto;
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+.reveal table thead th {
+  background: var(--primary);
+  color: white;
+  text-align: left;
+  padding: 0.55em 0.9em;
+  font-weight: 600;
+  font-size: 0.95em;
+  letter-spacing: -0.01em;
+}
+.reveal table tbody tr:nth-child(even) { background: #F9FAFB; }
+.reveal table tbody tr:hover { background: #EFF6FF; }
+.reveal table td {
+  padding: 0.5em 0.9em;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.reveal table tbody tr:last-child td { border-bottom: none; }
+.reveal table td strong { color: var(--ink); font-weight: 700; }
+.reveal table td.num-pos strong { color: var(--accent); }
+.reveal table td.num-neg strong { color: var(--danger); }
+
+/* Status pills (post-processed) */
+.pill {
+  display: inline-block;
+  padding: 0.2em 0.7em;
+  border-radius: 999px;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.pill-live    { background: #D1FAE5; color: #065F46; }
+.pill-paper   { background: #FEF3C7; color: #92400E; }
+.pill-stopped { background: #E5E7EB; color: #374151; }
+
+/* Inline code */
+.reveal code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: #F3F4F6;
+  color: #BE185D;
+  padding: 0.1em 0.45em;
+  border-radius: 4px;
+}
+
+/* Code blocks */
+.reveal pre {
+  font-size: 0.55em;
+  margin: 0.7em 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  border-radius: 8px;
+  max-height: 60vh;
+  background: var(--code-bg);
+}
+.reveal pre code {
+  padding: 1.1em 1.3em;
+  background: var(--code-bg);
+  color: #E5E7EB;
+  border-radius: 8px;
+  font-size: 1em;
+  line-height: 1.5;
+}
+
+/* Emphasis */
+.reveal strong { color: var(--danger); font-weight: 700; }
+.reveal em { color: var(--primary); font-style: normal; font-weight: 600; }
+
+/* Blockquote callout */
+.reveal blockquote {
+  border-left: 4px solid var(--accent);
+  background: #F0FDF4;
+  padding: 0.7em 1em;
+  margin: 0.7em 0;
+  font-style: normal;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* Lists */
+.reveal ul, .reveal ol { margin-left: 1.3em; }
+.reveal li { margin: 0.25em 0; line-height: 1.5; }
+.reveal li::marker { color: var(--muted); }
+
+/* Arrow callout (paragraphs starting with →) */
+.arrow-callout {
+  color: var(--accent) !important;
+  font-weight: 600;
+  border-left: 3px solid var(--accent);
+  background: #ECFDF5;
+  padding: 0.4em 0.9em;
+  margin: 0.4em 0;
+  border-radius: 0 6px 6px 0;
+}
+
+/* Controls / progress */
+.reveal .controls { color: var(--primary); }
+.reveal .progress { color: var(--accent); height: 4px; }
+.reveal .slide-number {
+  background: rgba(30, 58, 138, 0.1);
+  color: var(--primary);
+  padding: 0.25em 0.65em;
+  border-radius: 6px;
+  font-size: 0.55em;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  bottom: 14px;
+  right: 14px;
+}
+
+/* Loading */
+#loading {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-family: var(--font-sans); color: var(--muted); font-size: 18px;
+}
+
+/* Section divider (slides that are just a single H2) */
+.reveal section.section-divider {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  text-align: center;
+}
+.reveal section.section-divider h2 {
+  color: white;
+  border: none;
+  font-size: 2.6em;
+  display: block;
+}
+
+/* Print / PDF (Reveal handles this via ?print-pdf, basic safety) */
+@media print {
+  body::before { display: none; }
+}
 </style>
 </head>
 <body>
@@ -39,10 +243,7 @@
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/notes/notes.js"></script>
 <script>
 fetch('SLIDES.md')
-  .then(r => {
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.text();
-  })
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
   .then(md => {
     const stripped = md.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
     const cleaned = stripped.replace(/<!--\s*_class:[\s\S]*?-->/g, '');
@@ -58,18 +259,71 @@ fetch('SLIDES.md')
       container.appendChild(section);
     });
     document.getElementById('loading').remove();
+
     Reveal.initialize({
       hash: true,
       slideNumber: 'c/t',
       controls: true,
       progress: true,
-      transition: 'slide',
+      transition: 'fade',
+      transitionSpeed: 'fast',
+      width: 1280,
+      height: 800,
+      margin: 0.05,
       plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
     });
+
+    Reveal.on('ready', decorate);
+    Reveal.on('slidechanged', decorate);
   })
   .catch(err => {
     document.getElementById('loading').textContent = 'SLIDES.md 로드 실패: ' + err.message;
   });
+
+function decorate() {
+  // Status pills in tables
+  document.querySelectorAll('.reveal table td').forEach(td => {
+    if (td.dataset.decorated) return;
+    const t = td.textContent.trim();
+    let cls = null;
+    if (/^✅/.test(t)) cls = 'pill-live';
+    else if (/^🧪/.test(t)) cls = 'pill-paper';
+    else if (/^⏸/.test(t)) cls = 'pill-stopped';
+    if (cls) {
+      td.innerHTML = '<span class="pill ' + cls + '">' + t + '</span>';
+      td.dataset.decorated = '1';
+      return;
+    }
+    // Color numeric cells (+/- percentages in strong)
+    const strong = td.querySelector('strong');
+    if (strong) {
+      const s = strong.textContent.trim();
+      if (/^\+/.test(s)) td.classList.add('num-pos');
+      else if (/^[−-]/.test(s)) td.classList.add('num-neg');
+    }
+    td.dataset.decorated = '1';
+  });
+
+  // Arrow callouts
+  document.querySelectorAll('.reveal p').forEach(p => {
+    if (p.dataset.decorated) return;
+    if (p.textContent.trim().startsWith('→')) {
+      p.classList.add('arrow-callout');
+    }
+    p.dataset.decorated = '1';
+  });
+
+  // Section divider: slides with only an H2 (no other significant content)
+  document.querySelectorAll('.reveal .slides > section').forEach(section => {
+    if (section.dataset.checkedDivider) return;
+    const h2s = section.querySelectorAll('h2');
+    const meaningful = section.querySelectorAll('h1, h2, h3, p, ul, ol, table, pre, img');
+    if (h2s.length === 1 && meaningful.length === 1) {
+      section.classList.add('section-divider');
+    }
+    section.dataset.checkedDivider = '1';
+  });
+}
 </script>
 </body>
 </html>
